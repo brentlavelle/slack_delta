@@ -4,6 +4,7 @@ require_relative '../lib/slack_user'
 
 # Just what is needed
 minimal = JSON.parse('{"id":"U0000000A","deleted":false,"profile":{"email":"email@example.com","first_name":"firstname","last_name":"lastname"},"is_bot":false,"is_app_user":false,"updated":1504249016}')
+minimal_delete = minimal.clone.merge({'deleted' => true})
 
 # A full message I pulled from slack
 full = JSON.parse('{"id":"U0000000A","team_id":"T00000001","name":"first last","deleted":false,"profile":{"title":"title","phone":"2125551212","skype":"","real_name":"First LaSt","real_name_normalized":"First Last","display_name":"display","display_name_normalized":"display","fields":{"Xf11111111":{"value":"","alt":""}},"status_text":"","status_emoji":"","status_expiration":0,"avatar_hash":"OS1111111111","email":"email@example.com","first_name":"firstname","last_name":"lastname","image_48":"https://avatars.slack-edge.com/2015-01-01/1111111111_48.jpg","image_72":"https://avatars.slack-edge.com/2015-01-01/1111111111_72.jpg","image_192":"https://avatars.slack-edge.com/2015-01-01/11111111_192.jpg","image_512":"","status_text_canonical":"","team":"T01111111"},"is_bot":false,"is_app_user":false,"updated":1504249016,"presence":"away"}')
@@ -26,4 +27,15 @@ describe SlackUser.new(full) do
   it { expect(subject.deleted?).to be == full['deleted'] }
   it { expect(subject.updated).to be == full['updated'] }
   it { expect(subject.bot?).to be == full['bot'] }
+end
+
+describe 'Deactivated' do
+  let(:original) { SlackUser.new(minimal) }
+  let(:deleted) { SlackUser.new(minimal_delete) }
+
+  it { expect(original.deleted?).to be false}
+  it { expect(deleted.deleted?).to be true}
+  it { expect(original.compare(deleted)).to be == 'deactivated'}
+  it { expect(original.compare(original)).to be == 'no changes detected'}
+  it { expect(deleted.compare(deleted)).to be == 'no changes detected'}
 end

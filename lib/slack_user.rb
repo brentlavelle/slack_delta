@@ -19,5 +19,12 @@ class SlackUser
     @bot
   end
 
+  def compare(new_user)
+    if !@deleted and new_user.deleted?
+        return 'deactivated'
+    end
+    'no changes detected'
+  end
+
 end
 
