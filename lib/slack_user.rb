@@ -22,6 +22,8 @@ class SlackUser
   def compare(new_user)
     if !@deleted and new_user.deleted?
         return 'deactivated'
+    elsif @deleted and !new_user.deleted?
+        return 'activated'
     end
     'no changes detected'
   end

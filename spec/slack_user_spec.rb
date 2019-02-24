@@ -38,4 +38,5 @@ describe 'Deactivated' do
   it { expect(original.compare(deleted)).to be == 'deactivated'}
   it { expect(original.compare(original)).to be == 'no changes detected'}
   it { expect(deleted.compare(deleted)).to be == 'no changes detected'}
+  it { expect(deleted.compare(original)).to be == 'activated'}
 end
