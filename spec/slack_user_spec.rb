@@ -40,3 +40,14 @@ describe 'Deactivated' do
   it { expect(deleted.compare(deleted)).to be == 'no changes detected'}
   it { expect(deleted.compare(original)).to be == 'activated'}
 end
+
+describe 'Name change' do
+  let(:original) { SlackUser.new(minimal) }
+  let(:new_name) do
+    new_name_hash = minimal.clone
+    new_name_hash['profile']['first_name'] = 'some new name'
+    SlackUser.new(new_name_hash)
+  end
+  it { expect(original.compare(new_name)).to be == 'first name changed'}
+
+end

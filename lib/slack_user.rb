@@ -24,6 +24,8 @@ class SlackUser
         return 'deactivated'
     elsif @deleted and !new_user.deleted?
         return 'activated'
+    elsif @first_name != new_user.first_name
+      return 'first name changed'
     end
     'no changes detected'
   end
