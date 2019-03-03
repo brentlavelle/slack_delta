@@ -3,7 +3,7 @@ require 'logger'
 require_relative 'lib/slack_user'
 require 'yaml'
 
-env_var='SLACK_TOKEN'
+env_var = 'SLACK_TOKEN'
 token = ENV[env_var] or raise Exception, "You must set env variable #{env_var} to your slack token"
 
 Slack.configure do |config|
@@ -19,16 +19,16 @@ client.on :hello do
   client.users.each do |user_id, slack_user|
     user = SlackUser.new(slack_user)
     # next if user.bot?
-    users[user_id]=user
+    users[user_id] = user
   end
   File.write('users.yml', users.to_yaml)
   # old_users = JSON.parse(IO.read('users-save.yml'))
   old_users = YAML.load(IO.read('users-save.yml'))
   old_users.each_key do |key|
-      old_user = old_users[key]
+    old_user = old_users[key]
     new_user = users[key]
-    if not new_user.nil?
-      print(old_user.first_name, old_user.compare(new_user), "\n")
+    if not new_user.nil? and not old_user.same?(new_user)
+      print("#{old_user.fl_name}: #{old_user.compare(new_user)}\n")
     end
 
   end
