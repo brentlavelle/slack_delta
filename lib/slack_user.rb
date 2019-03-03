@@ -23,6 +23,10 @@ class SlackUser
     "#{first_name} #{last_name}"
   end
 
+  def same?(new_user)
+    compare(new_user) == 'no changes detected'
+  end
+
   def compare(new_user)
     if !@deleted and new_user.deleted?
       return 'deactivated'

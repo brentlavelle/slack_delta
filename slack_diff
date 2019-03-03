@@ -1,5 +1,8 @@
 require 'slack-ruby-client'
 require 'logger'
+require_relative 'lib/slack_user'
+require 'yaml'
+
 env_var='SLACK_TOKEN'
 token = ENV[env_var] or raise Exception, "You must set env variable #{env_var} to your slack token"
 
@@ -8,18 +11,27 @@ Slack.configure do |config|
 end
 
 client = Slack::RealTime::Client.new
+# client = Slack::Web::Client.new
 
 client.on :hello do
   # logger.info 'successfully connected to slack'
+  users = {}
   client.users.each do |user_id, slack_user|
-    # print "User id#{user_id} #{slack_user['name']} display: #{slack_user['profile']['display_name']} name: #{slack_user['profile']['real_name']} team: #{slack_user['profile']['team']} deleted: #{slack_user['deleted']} tz: #{slack_user['tz']} bot:#{slack_user['is_bot']}\n"
-    next if slack_user['is_bot']
-    user_type = slack_user['is_bot']?'ROBOT ':'person'
-    status    = slack_user['deleted']?'DELETED':'active'
-    next unless slack_user['deleted']
-    print "#{status}:#{user_type} - #{slack_user['profile']['display_name']} name: #{slack_user['profile']['real_name']}\n"
+    user = SlackUser.new(slack_user)
+    # next if user.bot?
+    users[user_id]=user
+  end
+  File.write('users.yml', users.to_yaml)
+  # old_users = JSON.parse(IO.read('users-save.yml'))
+  old_users = YAML.load(IO.read('users-save.yml'))
+  old_users.each_key do |key|
+      old_user = old_users[key]
+    new_user = users[key]
+    if not new_user.nil?
+      print(old_user.first_name, old_user.compare(new_user), "\n")
+    end
+
   end
 end
 
 client.start!
-print client
