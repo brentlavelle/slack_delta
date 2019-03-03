@@ -13,6 +13,7 @@ describe SlackUser.new(minimal) do
   it { is_expected.to be_a(SlackUser) }
   it { expect(subject.first_name).to be == minimal['profile']['first_name'] }
   it { expect(subject.last_name).to be == minimal['profile']['last_name'] }
+  it { expect(subject.fl_name).to be == minimal['profile']['first_name']+' '+minimal['profile']['last_name'] }
   it { expect(subject.email).to be == minimal['profile']['email'] }
   it { expect(subject.deleted?).to be == minimal['deleted'] }
   it { expect(subject.updated).to be == minimal['updated'] }
@@ -23,6 +24,7 @@ describe SlackUser.new(full) do
   it { is_expected.to be_a(SlackUser) }
   it { expect(subject.first_name).to be == full['profile']['first_name'] }
   it { expect(subject.last_name).to be == full['profile']['last_name'] }
+  it { expect(subject.fl_name).to be == full['profile']['first_name']+' '+full['profile']['last_name'] }
   it { expect(subject.email).to be == full['profile']['email'] }
   it { expect(subject.deleted?).to be == full['deleted'] }
   it { expect(subject.updated).to be == full['updated'] }
