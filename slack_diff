@@ -1,6 +1,7 @@
 require 'slack-ruby-client'
 require 'logger'
 require_relative 'lib/slack_user'
+require_relative 'lib/slack_user_collection'
 require 'yaml'
 
 env_var = 'SLACK_TOKEN'
@@ -15,22 +16,15 @@ client = Slack::RealTime::Client.new
 
 client.on :hello do
   # logger.info 'successfully connected to slack'
-  users = {}
+  current_users = SlackUserCollection.new''
   client.users.each do |user_id, slack_user|
-    user = SlackUser.new(slack_user)
-    # next if user.bot?
-    users[user_id] = user
+    current_users.add_user user_id, SlackUser.new(slack_user)
   end
-  File.write('users.yml', users.to_yaml)
+  File.write('users.yml', current_users.to_yaml)
   # old_users = JSON.parse(IO.read('users-save.yml'))
-  old_users = YAML.load(IO.read('users-save.yml'))
-  old_users.each_key do |key|
-    old_user = old_users[key]
-    new_user = users[key]
-    if not new_user.nil? and not old_user.same?(new_user)
-      print("#{old_user.fl_name}: #{old_user.compare(new_user)}\n")
-    end
-
+  old_users = SlackUserCollection.new(IO.read('users-save.yml'))
+  old_users.diff(current_users).each do |diff_line|
+    print(diff_line, "\n")
   end
 end
 
