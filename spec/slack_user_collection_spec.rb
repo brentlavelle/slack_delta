@@ -1,6 +1,7 @@
 require 'rspec'
 require 'json'
 require_relative '../lib/slack_user_collection'
+require_relative '../lib/slack_user'
 
 one = "
 ---
@@ -42,6 +43,8 @@ U2U66J512: !ruby/object:SlackUser
   email: second_user@example.com
 "
 
+user_hashmap = JSON.parse('{"id":"U00000001","deleted":false,"profile":{"email":"new1@example.com","first_name":"newfirst","last_name":"newlast"},"is_bot":false,"is_app_user":false,"updated":1504249018}')
+new_user = SlackUser.new(user_hashmap)
 
 
 describe SlackUserCollection.new('') do
@@ -64,6 +67,11 @@ describe 'diff' do
     let(:one_user) { SlackUserCollection.new(one) }
     let(:two_users) { SlackUserCollection.new(two) }
     let(:third_state) { SlackUserCollection.new(three) }
+    let(:third_added) do
+      collection = SlackUserCollection.new(three)
+      collection.add_user new_user.user_id, new_user
+      collection
+    end
 
     it { expect(no_users.diff(no_users)).to eq []}
     it { expect(one_user.diff(one_user)).to eq []}
@@ -79,5 +87,8 @@ describe 'diff' do
     end
     it 'someone leaves the firm' do
       expect(two_users.diff(third_state)).to eq ["Second User: deactivated"]
+    end
+    it 'add a user' do
+      expect(third_state.diff(third_added)).to eq ["newfirst newlast: added"]
     end
 end

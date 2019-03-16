@@ -22,6 +22,10 @@ class SlackUserCollection
     @user_hashmap.keys
   end
 
+  def add_user(id, user)
+    @user_hashmap[id] = user
+  end
+
   def diff(newer)
     results  = []
     leftover = {}
