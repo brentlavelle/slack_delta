@@ -26,6 +26,23 @@ U2U66J512: !ruby/object:SlackUser
   last_name: User
   email: second_user@example.com
 "
+three = "
+---
+U2U66J511: !ruby/object:SlackUser
+  user_id: U2U66J511
+  deleted: false
+  first_name: First
+  last_name: Last
+  email: first_last@example.com
+U2U66J512: !ruby/object:SlackUser
+  user_id: U2U66J512
+  deleted: true
+  first_name: Second
+  last_name: User
+  email: second_user@example.com
+"
+
+
 
 describe SlackUserCollection.new('') do
   it { is_expected.to be_a(SlackUserCollection) }
@@ -46,6 +63,7 @@ describe 'diff' do
     let(:no_users) { SlackUserCollection.new('') }
     let(:one_user) { SlackUserCollection.new(one) }
     let(:two_users) { SlackUserCollection.new(two) }
+    let(:third_state) { SlackUserCollection.new(three) }
 
     it { expect(no_users.diff(no_users)).to eq []}
     it { expect(one_user.diff(one_user)).to eq []}
@@ -58,5 +76,8 @@ describe 'diff' do
     end
     it 'remove one from two' do
       expect(two_users.diff(one_user)).to eq ["Second User: removed"]
+    end
+    it 'someone leaves the firm' do
+      expect(two_users.diff(third_state)).to eq ["Second User: deactivated"]
     end
 end
