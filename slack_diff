@@ -7,15 +7,12 @@ require 'yaml'
 env_var = 'SLACK_TOKEN'
 token = ENV[env_var] or raise Exception, "You must set env variable #{env_var} to your slack token"
 
-Slack.configure do |config|
-  config.token = token
-end
+Slack.configure { |config| config.token = token }
 
 client = Slack::RealTime::Client.new
 # client = Slack::Web::Client.new
 
 client.on :hello do
-  # logger.info 'successfully connected to slack'
   current_users = SlackUserCollection.new''
   client.users.each do |user_id, slack_user|
     current_users.add_user user_id, SlackUser.new(slack_user)
@@ -26,6 +23,7 @@ client.on :hello do
   old_users.diff(current_users).each do |diff_line|
     print(diff_line, "\n")
   end
+  client.stop!
 end
 
 client.start!
