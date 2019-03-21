@@ -20,7 +20,20 @@ class SlackUser
   end
 
   def fl_name
-    "#{first_name} #{last_name}"
+    if first_name && first_name.size>0
+      if last_name && last_name.size>0
+        "#{first_name} #{last_name}"
+      else
+        first_name
+      end
+    else
+      if last_name && last_name.size>0
+        last_name
+      else
+        "id:#{user_id}"
+      end
+    end
+
   end
 
   def same?(new_user)
@@ -33,7 +46,7 @@ class SlackUser
     elsif @deleted and !new_user.deleted?
       return 'activated'
     elsif @first_name != new_user.first_name
-      return 'first name changed'
+      return "first name changed from #{@first_name} to #{new_user.first_name}"
     end
     'no changes detected'
   end

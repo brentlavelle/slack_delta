@@ -5,7 +5,7 @@ require_relative '../lib/slack_user'
 # Just what is needed
 minimal = JSON.parse('{"id":"U0000000A","deleted":false,"profile":{"email":"email@example.com","first_name":"firstname","last_name":"lastname"},"is_bot":false,"is_app_user":false,"updated":1504249016}')
 minimal_delete = minimal.clone.merge({'deleted' => true})
-new_name_hash = JSON.parse('{"id":"U0000000A","deleted":false,"profile":{"email":"email@example.com","new_first":"firstname","last_name":"lastname"},"is_bot":false,"is_app_user":false,"updated":1504249016}')
+new_name_hash = JSON.parse('{"id":"U0000000A","deleted":false,"profile":{"email":"email@example.com","first_name":"new_first","last_name":"lastname"},"is_bot":false,"is_app_user":false,"updated":1504249016}')
 
 
 # A full message I pulled from slack
@@ -51,6 +51,6 @@ describe 'Name change' do
   let(:original) { SlackUser.new(minimal) }
   let(:new_name) { SlackUser.new(new_name_hash) }
 
-  it { expect(original.compare(new_name)).to be == 'first name changed'}
+  it { expect(original.compare(new_name)).to be == 'first name changed from firstname to new_first'}
   it { expect(original.same?(new_name)).to be false}
 end
