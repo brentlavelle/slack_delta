@@ -1,29 +1,32 @@
 require 'slack-ruby-client'
-require 'logger'
 require_relative 'lib/slack_user'
 require_relative 'lib/slack_user_collection'
-require 'yaml'
 
-env_var = 'SLACK_TOKEN'
-token = ENV[env_var] or raise Exception, "You must set env variable #{env_var} to your slack token"
+channel = ARGV[0] || ENV['SLACK_CHANNEL']  || raise('missing channel arg/env')
+previous_users_file = 'previous-users.yml'
 
-Slack.configure { |config| config.token = token }
-
-client = Slack::RealTime::Client.new
-# client = Slack::Web::Client.new
-
-client.on :hello do
-  current_users = SlackUserCollection.new''
-  client.users.each do |user_id, slack_user|
-    current_users.add_user user_id, SlackUser.new(slack_user)
-  end
-  File.write('users.yml', current_users.to_yaml)
-  # old_users = JSON.parse(IO.read('users-save.yml'))
-  old_users = SlackUserCollection.new(IO.read('users-save.yml'))
-  old_users.diff(current_users).each do |diff_line|
-    print(diff_line, "\n")
-  end
-  client.stop!
+Slack.configure do |config|
+  config.token = ENV['SLACK_TOKEN']
+  raise 'Missing ENV[SLACK_TOKEN]!' unless config.token
 end
 
-client.start!
+current_users = SlackUserCollection.new''
+
+client = Slack::Web::Client.new
+
+old_users = SlackUserCollection.new(IO.read(previous_users_file))
+
+client.users_list.members.each do |slack_user|
+  current_users.add_user slack_user.id, SlackUser.new(slack_user)
+  if slack_user.id == '111'
+    print 'test'
+  end
+end
+
+old_users.diff(current_users).each do |diff_line|
+  print(diff_line, "\n")
+  client.chat_postMessage(channel: channel, text: diff_line, as_user: true)
+end
+
+
+File.write(previous_users_file, current_users.to_yaml)
