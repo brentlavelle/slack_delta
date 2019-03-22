@@ -10,17 +10,13 @@ Slack.configure do |config|
   raise 'Missing ENV[SLACK_TOKEN]!' unless config.token
 end
 
-current_users = SlackUserCollection.new''
-
 client = Slack::Web::Client.new
 
-old_users = SlackUserCollection.new(IO.read(previous_users_file))
+old_users = YAML.load(IO.read(previous_users_file))
+current_users = SlackUserCollection.new''
 
 client.users_list.members.each do |slack_user|
   current_users.add_user slack_user.id, SlackUser.new(slack_user)
-  if slack_user.id == '111'
-    print 'test'
-  end
 end
 
 old_users.diff(current_users).each do |diff_line|
